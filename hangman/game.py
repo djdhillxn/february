@@ -3,7 +3,8 @@ import torch
 import numpy as np
 
 class HangmanPlayer:
-    def __init__(self, word, model, lives=6):
+    def __init__(self, word, model, lives=6, device='cpu'):
+        self.device = device
         self.original_word = word.lower()
         self.full_word = [ord(i) - 97 for i in word]
         self.letters_guessed = set()
@@ -17,18 +18,18 @@ class HangmanPlayer:
 
     def encode_obscured_word(self):
         word = [i if i in self.letters_guessed else 26 for i in self.full_word]
-        obscured_word = torch.zeros((len(word), 27), dtype=torch.float32)
+        obscured_word = torch.zeros((len(word), 27), dtype=torch.float32, device=self.device)
         for i, j in enumerate(word):
             obscured_word[i, j] = 1
         return obscured_word
 
     def encode_guess(self, guess):
-        encoded_guess = torch.zeros(26, dtype=torch.float32)
+        encoded_guess = torch.zeros(26, dtype=torch.float32, device=self.device)
         encoded_guess[guess] = 1
         return encoded_guess
     
     def encode_previous_guesses(self):
-        guess = torch.zeros(26, dtype=torch.float32)
+        guess = torch.zeros(26, dtype=torch.float32, device=self.device)
         for i in self.letters_guessed:
             guess[i] = 1
         return guess
@@ -40,7 +41,7 @@ class HangmanPlayer:
         else:
             correct_letter_index = 0  # Default if no letters remaining
         # Convert to tensor
-        correct_letter_tensor = torch.tensor(correct_letter_index, dtype=torch.long)
+        correct_letter_tensor = torch.tensor(correct_letter_index, dtype=torch.long, device=self.device)
         return correct_letter_tensor
 
     def store_guess_and_result(self, guess):
@@ -73,7 +74,7 @@ class HangmanPlayer:
             obscured_word_tensor = self.encode_obscured_word().unsqueeze(0)
             prev_guesses_tensor = self.encode_previous_guesses().unsqueeze(0)
             # Prevent model from repeating guesses
-            valid_guesses_mask = torch.ones(26, dtype=torch.float32)
+            valid_guesses_mask = torch.ones(26, dtype=torch.float32, device=self.device)
             for g in self.letters_guessed:
                 valid_guesses_mask[g] = 0
             model_output = self.model(obscured_word_tensor, prev_guesses_tensor).squeeze(0)

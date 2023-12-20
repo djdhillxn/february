@@ -5,7 +5,8 @@ from hangman.game import HangmanPlayer
 from tqdm import tqdm
 import random
 import pandas as pd 
-
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print(f"Using device: {device}")
 
 def validate_model(model, data):
     results = []
@@ -28,7 +29,7 @@ def train_model(model, train_data, val_data, epochs, learning_rate):
         progress_bar = tqdm(train_data, desc=f'Epoch {epoch + 1}/{epochs}', unit='word')
         # Training
         for word in progress_bar:
-            player = HangmanPlayer(word, model)
+            player = HangmanPlayer(word, model, device=device)
             words_seen, previous_letters, correct_responses = player.run()
             optimizer.zero_grad()
             for i in range(len(words_seen)):
@@ -77,7 +78,7 @@ def main():
     print(f"Loaded {len(test_words)} words for testing.")
 
     print("Initializing model...")
-    model = HangmanLSTMNet(hidden_dim=128)
+    model = HangmanLSTMNet(hidden_dim=128).to(device)
     print("Model initialized.")
 
     print("Starting training...")
