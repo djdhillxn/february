@@ -6,9 +6,11 @@ from tqdm import tqdm
 import random
 import pandas as pd 
 
+
 def validate_model(model, data):
     results = []
-    for word in data:
+    progress_bar = tqdm(data, desc='Validation', unit='word')
+    for word in progress_bar:
         player = HangmanPlayer(word, model)
         _ = player.run()
         results.append(player.evaluate_performance())
@@ -21,7 +23,7 @@ def train_model(model, train_data, val_data, epochs, learning_rate):
     criterion = torch.nn.NLLLoss()  # Negative Log-Likelihood Loss
     for epoch in range(epochs):
         random.shuffle(train_data)
-        train_data = train_data[:696]
+        train_data = train_data[:420]
         epoch_loss = 0
         progress_bar = tqdm(train_data, desc=f'Epoch {epoch + 1}/{epochs}', unit='word')
         # Training
@@ -41,14 +43,14 @@ def train_model(model, train_data, val_data, epochs, learning_rate):
 
             progress_bar.set_postfix(loss=epoch_loss / (len(train_data) * (i + 1)))
             # Verbose Output
-            print(f"Processed word: '{word}', Loss: {loss.item():.4f}")
+            #print(f"Processed word: '{word}', Loss: {loss.item():.4f}")
         
         # Print training results
         print(f'Epoch {epoch + 1} completed, Average Loss: {epoch_loss / len(train_data):.4f}')
         # Validation
         model.eval()  # Set the model to evaluation mode
         with torch.no_grad():
-            val_result_df = validate_model(model, val_data[:696])
+            val_result_df = validate_model(model, val_data[:420])
 
         # Print validation results
         print(f'Validation Results - Epoch {epoch + 1}:')
