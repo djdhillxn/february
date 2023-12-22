@@ -21,10 +21,10 @@ def validate_model(model, data):
 
 def train_model(model, train_data, val_data, epochs, learning_rate):
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
-    criterion = torch.nn.NLLLoss()  # Negative Log-Likelihood Loss
+    criterion = torch.nn.CrossEntropyLoss()  # Negative Log-Likelihood Loss
     for epoch in range(epochs):
         random.shuffle(train_data)
-        train_data = train_data[:420]
+        train_data = train_data
         epoch_loss = 0
         progress_bar = tqdm(train_data, desc=f'Epoch {epoch + 1}/{epochs}', unit='word')
         # Training
@@ -34,8 +34,8 @@ def train_model(model, train_data, val_data, epochs, learning_rate):
             optimizer.zero_grad()
             for i in range(len(words_seen)):
                 output = model(words_seen[i].unsqueeze(0), previous_letters[i].unsqueeze(0))
-                log_probs = torch.log_softmax(output, dim=1)  # Apply softmax and log
-                loss = criterion(log_probs, correct_responses[i].unsqueeze(0).long())
+                #log_probs = torch.log_softmax(output, dim=1)  # Apply softmax and log
+                loss = criterion(output, correct_responses[i].unsqueeze(0))
                 loss.backward()
                 # Apply gradient clipping
                 torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
@@ -51,7 +51,7 @@ def train_model(model, train_data, val_data, epochs, learning_rate):
         # Validation
         model.eval()  # Set the model to evaluation mode
         with torch.no_grad():
-            val_result_df = validate_model(model, val_data[:420])
+            val_result_df = validate_model(model, val_data)
 
         # Print validation results
         print(f'Validation Results - Epoch {epoch + 1}:')
@@ -82,7 +82,7 @@ def main():
     print("Model initialized.")
 
     print("Starting training...")
-    train_model(model, train_words, test_words, epochs=10, learning_rate=0.001)
+    train_model(model, train_words[:10000], test_words[:10000], epochs=10, learning_rate=0.001)
     print("Training completed.")
 
     print("Saving model...")
