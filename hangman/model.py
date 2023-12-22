@@ -6,8 +6,8 @@ class HangmanLSTMNet(nn.Module):
     def __init__(self, hidden_dim, lstm_layers=1, device='cpu'):
         super(HangmanLSTMNet, self).__init__()
         self.hidden_dim = hidden_dim
-        self.lstm = nn.LSTM(27, hidden_dim, num_layers=lstm_layers, batch_first=True)
-        self.fc = nn.Linear(hidden_dim + 26, 26)
+        self.lstm = nn.LSTM(27, hidden_dim, num_layers=lstm_layers, batch_first=True).to(device)
+        self.fc = nn.Linear(hidden_dim + 26, 26).to(device)
         self.device = device
 
     def forward(self, obscured_word, previous_guesses):
