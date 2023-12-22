@@ -80,12 +80,12 @@ def main():
     print("Model initialized.")
 
     print("Starting training...")
-    train_model(model, train_words[:1000], test_words[:1000], epochs=10, learning_rate=0.001)
+    train_model(model, train_words[:50000], test_words[:50000], epochs=3, learning_rate=0.001)
     print("Training completed.")
 
     print("Saving model...")
-    torch.save(model.state_dict(), 'hangman_model.pth')
-    print("Model saved as 'hangman_model.pth'.")
+    torch.save(model.state_dict(), 'hangman_model_gru50k_ep3.pth')
+    print("Model saved as 'hangman_model_gru50k_ep3.pth'.")
 
 if __name__ == '__main__':
     main()
