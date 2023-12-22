@@ -23,11 +23,6 @@ class HangmanPlayer:
             obscured_word[i, j] = 1
         return obscured_word
 
-    def encode_guess(self, guess):
-        encoded_guess = torch.zeros(26, dtype=torch.float32, device=self.device)
-        encoded_guess[guess] = 1
-        return encoded_guess
-    
     def encode_previous_guesses(self):
         guess = torch.zeros(26, dtype=torch.float32, device=self.device)
         for i in self.letters_guessed:
@@ -35,14 +30,12 @@ class HangmanPlayer:
         return guess
     
     def encode_correct_responses(self):
-        # Find the index of the first remaining correct letter
+        response = torch.zeros(26, dtype=torch.float32, device=self.device)
+        for i in self.letters_remaining:
+            response[i] = 1.0
         if self.letters_remaining:
-            correct_letter_index = min(self.letters_remaining)
-        else:
-            correct_letter_index = 0  # Default if no letters remaining
-        # Convert to tensor
-        correct_letter_tensor = torch.tensor(correct_letter_index, dtype=torch.long, device=self.device)
-        return correct_letter_tensor
+            response /= response.sum()  # Normalize the response vector
+        return response
 
     def store_guess_and_result(self, guess):
         self.obscured_words_seen.append(self.encode_obscured_word())
@@ -60,6 +53,25 @@ class HangmanPlayer:
         self.correct_responses.append(correct_responses)
         return
 
+    def run(self):
+        while self.lives_left > 0 and len(self.letters_remaining) > 0:
+            obscured_word_tensor = self.encode_obscured_word().unsqueeze(0)
+            prev_guesses_tensor = self.encode_previous_guesses().unsqueeze(0)
+
+            valid_guesses_mask = torch.ones(26, dtype=torch.float32, device=self.device)
+            for g in self.letters_guessed:
+                valid_guesses_mask[g] = 0
+
+            model_output = self.model(obscured_word_tensor, prev_guesses_tensor).squeeze(0)
+            model_output[valid_guesses_mask == 0] = -float('inf')  # Invalidate repeated guesses
+            guess = torch.argmax(model_output).item()
+
+            self.store_guess_and_result(guess)
+
+        return (torch.stack(self.obscured_words_seen),
+                torch.stack(self.letters_previously_guessed),
+                torch.stack(self.correct_responses))
+    """
     def run(self):
         iteration = 0
         while self.lives_left > 0 and len(self.letters_remaining) > 0:
@@ -86,6 +98,7 @@ class HangmanPlayer:
         return (torch.stack(self.obscured_words_seen),
                 torch.stack(self.letters_previously_guessed),
                 torch.stack(self.correct_responses))
+    """
 
     def show_words_seen(self):
         for word in self.obscured_words_seen:
