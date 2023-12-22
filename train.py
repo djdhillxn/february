@@ -76,7 +76,7 @@ def main():
     print(f"Loaded {len(test_words)} words for testing.")
 
     print("Initializing model...")
-    model = HangmanGRUNet(hidden_dim=128, lstm_layers=1, device=device)
+    model = HangmanGRUNet(hidden_dim=128, gru_layers=1, device=device)
     print("Model initialized.")
 
     print("Starting training...")
