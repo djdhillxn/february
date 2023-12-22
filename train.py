@@ -82,7 +82,7 @@ def main():
     print("Model initialized.")
 
     print("Starting training...")
-    train_model(model, train_words[:10000], test_words[:10000], epochs=10, learning_rate=0.001)
+    train_model(model, train_words[:100000], test_words[:100000], epochs=3, learning_rate=0.001)
     print("Training completed.")
 
     print("Saving model...")
