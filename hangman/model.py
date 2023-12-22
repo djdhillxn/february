@@ -3,11 +3,12 @@ import torch
 import torch.nn as nn
 
 class HangmanLSTMNet(nn.Module):
-    def __init__(self, hidden_dim, lstm_layers=1):
+    def __init__(self, hidden_dim, lstm_layers=1, device='cpu'):
         super(HangmanLSTMNet, self).__init__()
         self.hidden_dim = hidden_dim
         self.lstm = nn.LSTM(27, hidden_dim, num_layers=lstm_layers, batch_first=True)
         self.fc = nn.Linear(hidden_dim + 26, 26)
+        self.device = device
 
     def forward(self, obscured_word, previous_guesses):
         lstm_out, _ = self.lstm(obscured_word)
@@ -29,11 +30,11 @@ class HangmanLSTMNet(nn.Module):
 
     def _encode_obscured_word(self, current_word):
         # Convert the obscured word into a tensor
-        return torch.tensor([[ord(c) - 97 if c != '_' else 26 for c in current_word]], dtype=torch.float32)
+        return torch.tensor([[ord(c) - 97 if c != '_' else 26 for c in current_word]], dtype=torch.float32, device=self.device)
 
     def _encode_previous_guesses(self, previous_guesses):
         # Convert the list of guessed letters into a tensor
-        guesses_tensor = torch.zeros(26, dtype=torch.float32)
+        guesses_tensor = torch.zeros(26, dtype=torch.float32, device=self.device)
         for guess in previous_guesses:
             guesses_tensor[ord(guess) - 97] = 1
         return guesses_tensor

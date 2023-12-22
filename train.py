@@ -12,7 +12,7 @@ def validate_model(model, data):
     results = []
     progress_bar = tqdm(data, desc='Validation', unit='word')
     for word in progress_bar:
-        player = HangmanPlayer(word, model)
+        player = HangmanPlayer(word, model, device)
         _ = player.run()
         results.append(player.evaluate_performance())
     df = pd.DataFrame(results, columns=['won', 'num_correct', 'num_incorrect', 'letters'])
@@ -34,8 +34,7 @@ def train_model(model, train_data, val_data, epochs, learning_rate):
             optimizer.zero_grad()
             for i in range(len(words_seen)):
                 output = model(words_seen[i].unsqueeze(0), previous_letters[i].unsqueeze(0))
-                #log_probs = torch.log_softmax(output, dim=1)  # Apply softmax and log
-                loss = criterion(output, correct_responses[i].unsqueeze(0))
+                loss = criterion(output, correct_responses[i].unsqueeze(0).to(device))
                 loss.backward()
                 # Apply gradient clipping
                 torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
