@@ -12,7 +12,7 @@ def validate_model(model, data):
     results = []
     progress_bar = tqdm(data, desc='Validation', unit='word')
     for word in progress_bar:
-        player = HangmanPlayer(word, model, device)
+        player = HangmanPlayer(word, model, device=device)
         _ = player.run()
         results.append(player.evaluate_performance())
     df = pd.DataFrame(results, columns=['won', 'num_correct', 'num_incorrect', 'letters'])
@@ -80,7 +80,7 @@ def main():
     print("Model initialized.")
 
     print("Starting training...")
-    train_model(model, train_words[:100000], test_words[:100000], epochs=3, learning_rate=0.001)
+    train_model(model, train_words[:1000], test_words[:1000], epochs=10, learning_rate=0.001)
     print("Training completed.")
 
     print("Saving model...")
