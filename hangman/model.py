@@ -2,18 +2,18 @@
 import torch
 import torch.nn as nn
 
-class HangmanLSTMNet(nn.Module):
-    def __init__(self, hidden_dim, lstm_layers=1, device='cpu'):
-        super(HangmanLSTMNet, self).__init__()
+class HangmanGRUNet(nn.Module):
+    def __init__(self, hidden_dim, gru_layers=1, device='cpu'):
+        super(HangmanGRUNet, self).__init__()
         self.hidden_dim = hidden_dim
-        self.lstm = nn.LSTM(27, hidden_dim, num_layers=lstm_layers, batch_first=True).to(device)
+        self.gru = nn.GRU(27, hidden_dim, num_layers=gru_layers, batch_first=True).to(device)
         self.fc = nn.Linear(hidden_dim + 26, 26).to(device)
         self.device = device
 
     def forward(self, obscured_word, previous_guesses):
-        lstm_out, _ = self.lstm(obscured_word)
-        final_lstm_out = lstm_out[:, -1, :]
-        combined = torch.cat((final_lstm_out, previous_guesses), dim=1)
+        gru_out, _ = self.gru(obscured_word)
+        final_gru_out = gru_out[:, -1, :]
+        combined = torch.cat((final_gru_out, previous_guesses), dim=1)
         out = self.fc(combined)
         return out
 

@@ -1,6 +1,6 @@
 # train.py
 import torch
-from hangman.model import HangmanLSTMNet
+from hangman.model import HangmanGRUNet
 from hangman.game import HangmanPlayer
 from tqdm import tqdm
 import random
@@ -24,7 +24,6 @@ def train_model(model, train_data, val_data, epochs, learning_rate):
     criterion = torch.nn.CrossEntropyLoss()  # Negative Log-Likelihood Loss
     for epoch in range(epochs):
         random.shuffle(train_data)
-        train_data = train_data
         epoch_loss = 0
         progress_bar = tqdm(train_data, desc=f'Epoch {epoch + 1}/{epochs}', unit='word')
         # Training
@@ -77,7 +76,7 @@ def main():
     print(f"Loaded {len(test_words)} words for testing.")
 
     print("Initializing model...")
-    model = HangmanLSTMNet(hidden_dim=128, lstm_layers=1, device=device)
+    model = HangmanGRUNet(hidden_dim=128, lstm_layers=1, device=device)
     print("Model initialized.")
 
     print("Starting training...")
