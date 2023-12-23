@@ -58,7 +58,7 @@ def train_model(model, train_data, val_data, epochs, learning_rate):
         model.train()  # Set the model back to training mode
 
 
-    torch.save(model.state_dict(), 'hangman_model.pth')
+    #torch.save(model.state_dict(), 'hangman_model.pth')
 
 
 def load_data(filepath):
@@ -76,7 +76,7 @@ def main():
     print(f"Loaded {len(test_words)} words for testing.")
 
     print("Initializing model...")
-    model = HangmanGRUNet(hidden_dim=128, gru_layers=1, device=device)
+    model = HangmanGRUNet(hidden_dim=128, gru_layers=3, device=device)
     print("Model initialized.")
 
     print("Starting training...")
